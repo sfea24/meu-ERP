@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Categorias - SaberTI</title>
+    <link rel="stylesheet" href="css/Style.css" />
+  </head>
+  <body data-tabela="categoria_produto">
+    <main class="pagina-cadastro">
+      <h1>Cadastro de Categorias</h1>
+      <form id="formCadastro">
+        <input id="registroId" type="hidden" /><label
+          >Descrição<input id="ds_categoria_produto" maxlength="50" required
+        /></label>
+        <div class="acoes">
+          <button type="submit">Salvar</button>
+          <button id="limpar" type="button" class="cancelar">Limpar</button>
+        </div>
+      </form>
+      <p id="mensagem" aria-live="polite"></p>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/Supabase.js"></script>
+    <script src="js/Categoria.js"></script>
+    <script src="js/Crud.js"></script>
+  </body>
+</html>

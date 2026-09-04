@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clientes - SaberTI</title>
+    <link rel="stylesheet" href="css/Style.css" />
+  </head>
+  <body data-tabela="cliente">
+    <main class="pagina-cadastro">
+      <h1>Cadastro de Clientes</h1>
+      <form id="formCadastro">
+        <input id="registroId" type="hidden" />
+        <label
+          >Tipo de cliente<select id="tipo_cliente" required>
+            <option value="" disabled selected>Selecione</option>
+            <option value="F">Pessoa física</option>
+            <option value="J">Pessoa jurídica</option>
+          </select></label
+        >
+        <label
+          >CPF/CNPJ<input
+            id="cpf_cnpj_cliente"
+            maxlength="18"
+            inputmode="numeric"
+            required
+        /></label>
+        <label>Nome<input id="nome_cliente" maxlength="100" required /></label>
+        <label
+          >Telefone<input
+            id="telefone"
+            type="tel"
+            maxlength="15"
+            inputmode="numeric"
+            placeholder="(00) 00000-0000"
+            required
+        /></label>
+        <label>Endereço<input id="endereco" maxlength="100" required /></label>
+        <div class="acoes">
+          <button type="submit">Salvar</button
+          ><button id="limpar" type="button" class="cancelar">Limpar</button>
+        </div>
+      </form>
+      <p id="mensagem" aria-live="polite"></p>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/Supabase.js"></script>
+    <script src="js/Cliente.js"></script>
+    <script src="js/Crud.js"></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Produtos - SaberTI</title>
+    <link rel="stylesheet" href="css/Style.css" />
+  </head>
+  <body data-tabela="produto">
+    <main class="pagina-cadastro">
+      <h1>Cadastro de Produtos</h1>
+      <form id="formCadastro">
+        <input id="registroId" type="hidden" />
+        <label
+          >Categoria
+          <div class="campo-autocomplete">
+            <input
+              id="buscaCategoria"
+              type="search"
+              placeholder="Digite para buscar uma categoria"
+              autocomplete="off"
+              aria-label="Buscar categoria"
+              required
+            />
+            <div
+              id="sugestoesCategoria"
+              class="lista-sugestoes"
+              role="listbox"
+            ></div>
+          </div>
+          <select id="categoriaprodutoid" hidden aria-hidden="true"></select
+        ></label>
+        <label
+          >Descrição<input id="ds_produto" maxlength="50" required
+        /></label>
+        <label>Observação<input id="obs_produto" maxlength="300" /></label>
+        <label
+          >Valor de venda<input
+            id="vl_venda_produto"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+        /></label>
+        <input id="dt_cadastro_produto" type="hidden" />
+        <label
+          >Status<select id="status_produto" required>
+            <option value="" disabled selected>Selecione uma opção</option>
+            <option value="ATIVO">ATIVO</option>
+            <option value="INATIVO">INATIVO</option>
+          </select>
+        </label>
+        <div class="acoes">
+          <button type="submit">Salvar</button
+          ><button id="limpar" type="button" class="cancelar">Limpar</button>
+        </div>
+      </form>
+      <p id="mensagem" aria-live="polite"></p>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/Supabase.js"></script>
+    <script src="js/Produto.js"></script>
+    <script src="js/Crud.js"></script>
+  </body>
+</html>

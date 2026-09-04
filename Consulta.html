@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Consultas - SaberTI</title>
+    <link rel="stylesheet" href="css/Style.css" />
+  </head>
+  <body class="com-barra-navegacao">
+    <header class="barra-navegacao">
+      <a class="marca" href="Menu.html" aria-label="Página inicial"
+        ><img src="Imagens/logo.png" alt="SaberTI"
+      /></a>
+      <div class="navegacoes">
+        <nav class="menu-dropdown" aria-label="Cadastros">
+          <details>
+            <summary>Cadastros <b aria-hidden="true">⌄</b></summary>
+            <div class="opcoes-menu">
+              <a href="Cliente.html">Clientes</a>
+              <a href="Categoria.html">Categorias</a>
+              <a href="Produto.html">Produtos</a>
+              <a href="Orcamento.html">Orçamentos</a>
+            </div>
+          </details>
+        </nav>
+        <nav class="menu-dropdown" aria-label="Consultas">
+          <details>
+            <summary>Consultas <b aria-hidden="true">⌄</b></summary>
+            <div class="opcoes-menu">
+              <a data-tipo="cliente" href="Consulta.html?tipo=cliente"
+                >Clientes</a
+              >
+              <a
+                data-tipo="categoria_produto"
+                href="Consulta.html?tipo=categoria_produto"
+                >Categorias</a
+              >
+              <a data-tipo="produto" href="Consulta.html?tipo=produto"
+                >Produtos</a
+              >
+              <a data-tipo="orcamento" href="Consulta.html?tipo=orcamento"
+                >Orçamentos</a
+              >
+            </div>
+          </details>
+        </nav>
+        <nav class="menu-dropdown" aria-label="Manutenção">
+          <details>
+            <summary>Manutenção <b aria-hidden="true">⌄</b></summary>
+            <div class="opcoes-menu">
+              <a class="criar-usuarios" href="Usuario.html">Criar usuários</a>
+              <a data-tipo="usuarios" href="Consulta.html?tipo=usuarios"
+                >Editar usuário</a
+              >
+            </div>
+          </details>
+        </nav>
+      </div>
+      <button id="botaoSair" type="button">Sair</button>
+    </header>
+    <main class="pagina-consulta">
+      <h1 id="tituloConsulta">Consulta</h1>
+      <p id="mensagem" aria-live="polite"></p>
+      <label class="campo-busca" for="busca"
+        >Buscar registro<input
+          id="busca"
+          type="search"
+          placeholder="Digite para buscar..."
+      /></label>
+      <section class="lista">
+        <div class="tabela-responsiva">
+          <table>
+            <thead id="cabecalhoConsulta"></thead>
+            <tbody id="listaConsulta"></tbody>
+          </table>
+        </div>
+      </section>
+      <div class="paginacao">
+        <button id="paginaAnterior" type="button">Anterior</button>
+        <span id="numeroPagina"></span>
+        <button id="proximaPagina" type="button">Próxima</button>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/Supabase.js"></script>
+    <script src="js/Consulta.js"></script>
+  </body>
+</html>

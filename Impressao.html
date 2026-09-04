@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Impressão de orçamento - SaberTI</title>
+    <link rel="stylesheet" href="css/Style.css" />
+  </head>
+  <body class="pagina-impressao">
+    <main class="documento-impressao">
+      <header class="cabecalho-impressao">
+        <img src="Imagens/logo.png" alt="SaberTI" />
+        <div>
+          <h1>Orçamento</h1>
+          <p>Documento gerado pelo sistema da Ótica Visão</p>
+          <p id="orientacaoPdf" class="orientacao-pdf" hidden></p>
+        </div>
+        <button id="botaoImprimir" type="button">Imprimir</button>
+      </header>
+      <table>
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Valor unitário</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="itensImpressao"></tbody>
+      </table>
+      <p id="totaisImpressao" class="total-impressao"></p>
+      <footer id="dadosImpressao" class="dados-impressao"></footer>
+    </main>
+    <script src="js/Impressao.js"></script>
+  </body>
+</html>

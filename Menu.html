@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SaberTI</title>
+    <link rel="stylesheet" href="css/Style.css" />
+  </head>
+  <body class="com-barra-navegacao pagina-inicial">
+    <header class="barra-navegacao">
+      <a class="marca" href="Menu.html" aria-label="Página inicial"
+        ><img src="Imagens/logo.png" alt="SaberTI"
+      /></a>
+      <div class="navegacoes">
+        <nav class="menu-dropdown" aria-label="Cadastros">
+          <details>
+            <summary>
+              Cadastros
+              <b aria-hidden="true">⌄</b>
+            </summary>
+            <div class="opcoes-menu">
+              <a href="Cliente.html">Clientes</a>
+              <a href="Categoria.html">Categorias</a>
+              <a href="Produto.html">Produtos</a>
+              <a href="Orcamento.html">Orçamentos</a>
+            </div>
+          </details>
+        </nav>
+        <nav class="menu-dropdown" aria-label="Consultas">
+          <details>
+            <summary>
+              Consultas
+              <b aria-hidden="true">⌄</b>
+            </summary>
+            <div class="opcoes-menu">
+              <a href="Consulta.html?tipo=cliente">Clientes</a>
+              <a href="Consulta.html?tipo=categoria_produto">Categorias</a>
+              <a href="Consulta.html?tipo=produto">Produtos</a>
+              <a href="Consulta.html?tipo=orcamento">Orçamentos</a>
+            </div>
+          </details>
+        </nav>
+        <nav class="menu-dropdown" aria-label="Manutencao">
+          <details>
+            <summary>
+              Manutenção
+              <b aria-hidden="true">⌄</b>
+            </summary>
+            <div class="opcoes-menu">
+              <a class="criar-usuarios" href="Usuario.html">Criar usuários</a>
+              <a href="Consulta.html?tipo=usuarios">Editar usuário</a>
+            </div>
+          </details>
+        </nav>
+      </div>
+      <button id="botaoSair" type="button">Sair</button>
+    </header>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/Supabase.js"></script>
+    <script src="js/Menu.js"></script>
+  </body>
+</html>
