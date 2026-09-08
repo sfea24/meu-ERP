@@ -20,7 +20,7 @@ const tipos = {
     chave: "clienteid",
     pagina: "Cliente.html",
     colunas: ["Tipo", "CPF/CNPJ", "Nome"],
-    select: "*",
+    select: "clienteid, tipo_cliente, cpf_cnpj_cliente, nome_cliente",
     valores: (item) => [
       item.tipo_cliente,
       item.cpf_cnpj_cliente,
@@ -33,7 +33,7 @@ const tipos = {
     chave: "categoriaprodutoid",
     pagina: "Categoria.html",
     colunas: ["Descrição"],
-    select: "*",
+    select: "categoriaprodutoid, ds_categoria_produto",
     valores: (item) => [item.ds_categoria_produto],
   },
 
@@ -42,7 +42,7 @@ const tipos = {
     chave: "produtoid",
     pagina: "Produto.html",
     colunas: ["Descrição", "Valor", "Categoria", "Status"],
-    select: "*, categoria_produto(ds_categoria_produto)",
+    select: "produtoid, ds_produto, vl_venda_produto, status_produto, categoria_produto(ds_categoria_produto)",
     valores: (item) => [
       item.ds_produto,
       moeda(item.vl_venda_produto),
@@ -56,7 +56,7 @@ const tipos = {
     chave: "orcamentoid",
     pagina: "Orcamento.html",
     colunas: ["Cliente", "Data", "Validade", "Valor total"],
-    select: "*, cliente(nome_cliente)",
+    select: "orcamentoid, dt_orcamento, dt_validade_orcamento, vl_total_orcamento, cliente(nome_cliente)",
     valores: (item) => [
       item.cliente?.nome_cliente,
       data(item.dt_orcamento),

@@ -305,7 +305,9 @@ async function carregarProdutosOrcamento() {
         true,
       );
 
-    const idsProdutos = itens.data.map((item) => item.produtoid);
+    const produtosCarregados = new Set(produtosOrcamento.map((produto) => produto.produtoid));
+    const idsProdutos = [...new Set(itens.data.map((item) => item.produtoid))]
+      .filter((id) => !produtosCarregados.has(id));
 
     if (idsProdutos.length) {
       const produtosDoOrcamento = await supabaseClient
@@ -617,20 +619,13 @@ async function persistirRegistro({ redirecionar = true } = {}) {
     );
   }
 
-  if (
-    tabela === "produto" &&
-    !["ATIVO", "INATIVO"].includes(campos.status_produto)
-  ) {
-    return avisar("Selecione o status Ativo ou Inativo para o produto.", true);
-  }
-
   const id = registroId.value;
 
   if (id && !config.manterChaveNaEdicao) delete campos[config.chave];
 
   const resposta = id
     ? await supabaseClient.from(tabela).update(campos).eq(config.chave, id)
-    : await supabaseClient.from(tabela).insert(campos).select().single();
+    : await supabaseClient.from(tabela).insert(campos).select(config.chave).single();
 
   if (resposta.error)
     return avisar("Erro ao salvar: " + resposta.error.message, true);
@@ -718,7 +713,7 @@ async function carregarRegistroParaEditar() {
 
   const resposta = await supabaseClient
     .from(tabela)
-    .select("*")
+    .select([...new Set([config.chave, ...config.campos])].join(", "))
     .eq(config.chave, id)
     .single();
 

@@ -10,11 +10,6 @@ window.configuracaoCadastro = {
   normalizarCampos(campos) {
     if (!ehAdministrador) delete campos.tipo;
   },
-  validar() {
-    if (!ehAdministrador || ["A", "U"].includes(document.getElementById("tipo").value)) return true;
-    avisar("Selecione o tipo A (Admin) ou U (Usuário).", true);
-    return false;
-  },
   formatarLinha: (item) => `<td>${escaparHtml(item.usuario)}</td>`,
   permitirAcesso() {
     const editando = new URLSearchParams(window.location.search).get("editar");

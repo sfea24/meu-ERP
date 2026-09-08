@@ -14,7 +14,7 @@ formLogin.addEventListener("submit", async function (evento) {
   try {
     const buscaUsuario = await supabaseClient
       .from("usuarios")
-      .select("*")
+      .select("id, usuario, senha, tipo")
       .eq("usuario", usuario)
       .maybeSingle();
 
