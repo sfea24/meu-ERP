@@ -68,22 +68,6 @@ function documentoClienteValido() {
   return valido;
 }
 
-function formatarTelefone(valor) {
-  const numeros = valor.replace(/\D/g, "").slice(0, 11);
-  return numeros
-    .replace(/(\d{2})(\d)/, "($1) $2")
-    .replace(/(\d{5})(\d)/, "$1-$2");
-}
-
-function iniciarCliente() {
-  configurarCpfCnpj();
-  const telefone = document.getElementById("telefone");
-  telefone.addEventListener("input", () => {
-    telefone.value = formatarTelefone(telefone.value);
-  });
-  telefone.value = formatarTelefone(telefone.value);
-}
-
 window.configuracaoCadastro = {
   tabela: "cliente",
   chave: "clienteid",
@@ -92,8 +76,6 @@ window.configuracaoCadastro = {
     "tipo_cliente",
     "cpf_cnpj_cliente",
     "nome_cliente",
-    "telefone",
-    "endereco",
   ],
   dependencia: [
     "orcamento",
@@ -101,7 +83,7 @@ window.configuracaoCadastro = {
     "Este cliente possui orçamentos cadastrados.",
   ],
   formatarLinha: (item) =>
-    `<td>${escaparHtml(item.tipo_cliente)}</td><td>${escaparHtml(item.cpf_cnpj_cliente)}</td><td>${escaparHtml(item.nome_cliente)}</td><td>${escaparHtml(item.telefone)}</td><td>${escaparHtml(item.endereco)}</td>`,
-  iniciar: iniciarCliente,
+    `<td>${escaparHtml(item.tipo_cliente)}</td><td>${escaparHtml(item.cpf_cnpj_cliente)}</td><td>${escaparHtml(item.nome_cliente)}</td>`,
+  iniciar: configurarCpfCnpj,
   validar: documentoClienteValido,
 };

@@ -1,7 +1,7 @@
 const tipo =
   new URLSearchParams(window.location.search).get("tipo") || "cliente";
-const porPagina = 7;
-const ehAdministrador = sessionStorage.getItem("usuarioLogado") === "ADMIN";
+const porPagina = 5;
+let ehAdministrador = false;
 let paginaAtual = 1;
 let registros = [];
 
@@ -19,14 +19,12 @@ const tipos = {
     titulo: "Consulta de Clientes",
     chave: "clienteid",
     pagina: "Cliente.html",
-    colunas: ["Tipo", "CPF/CNPJ", "Nome", "Telefone", "Endereço"],
+    colunas: ["Tipo", "CPF/CNPJ", "Nome"],
     select: "*",
     valores: (item) => [
       item.tipo_cliente,
       item.cpf_cnpj_cliente,
       item.nome_cliente,
-      item.telefone,
-      item.endereco,
     ],
   },
 
@@ -69,16 +67,23 @@ const tipos = {
 
   usuarios: {
     titulo: "Consulta de Usuários",
-    chave: "usuario",
+    chave: "id",
     pagina: "Usuario.html",
-    colunas: ["Usuário"],
-    select: "usuario",
-    valores: (item) => [item.usuario],
+    get colunas() {
+      return ehAdministrador ? ["Usuário", "Tipo"] : ["Usuário"];
+    },
+    get select() {
+      return ehAdministrador ? "id, usuario, tipo" : "id, usuario";
+    },
+    valores: (item) => ehAdministrador
+      ? [item.usuario, item.tipo === "A" ? "A (Admin)" : "U (Usuário)"]
+      : [item.usuario],
   },
 };
 
 const configuracao = tipos[tipo] || tipos.cliente;
 const tabela = tipos[tipo] ? tipo : "cliente";
+document.body.classList.toggle("tela-consulta", tabela !== "usuarios");
 
 function moeda(valor) {
   return Number(valor).toLocaleString("pt-BR", {
@@ -103,11 +108,10 @@ function criarCabecalho() {
     const coluna = document.createElement("th");
 
     coluna.textContent = nome;
+    coluna.scope = "col";
 
     if (nome === "Ações") {
       coluna.className = "cabecalho-acoes";
-      coluna.style.textAlign = "right";
-      coluna.style.paddingRight = "60px";
     }
 
     linha.appendChild(coluna);
@@ -152,17 +156,29 @@ function mostrarTabela() {
     const codigo = document.createElement("td");
 
     codigo.textContent = item[configuracao.chave] ?? "";
+    codigo.dataset.label = "Código";
     linha.appendChild(codigo);
 
-    configuracao.valores(item).forEach((valor) => {
+    configuracao.valores(item).forEach((valor, indice) => {
       const coluna = document.createElement("td");
 
       coluna.textContent = valor ?? "";
+      coluna.dataset.label = configuracao.colunas[indice];
+      if (tabela === "produto" && configuracao.colunas[indice] === "Status") {
+        const status = String(valor ?? "").trim().toUpperCase();
+        if (["ATIVO", "INATIVO"].includes(status)) {
+          const etiqueta = document.createElement("span");
+          etiqueta.className = `status-produto status-${status.toLowerCase()}`;
+          etiqueta.textContent = status;
+          coluna.replaceChildren(etiqueta);
+        }
+      }
 
       linha.appendChild(coluna);
     });
 
     const acoes = document.createElement("td");
+    acoes.dataset.label = "Ações";
     const editar = document.createElement("button");
 
     editar.textContent = "Editar";
@@ -281,10 +297,10 @@ async function carregarRegistros() {
   let consulta = supabaseClient
     .from(tabela)
     .select(configuracao.select)
-    .order(configuracao.chave, { ascending: true });
+    .order(configuracao.chave, { ascending: false });
 
   if (tabela === "usuarios" && !ehAdministrador)
-    consulta = consulta.eq("usuario", sessionStorage.getItem("usuarioLogado"));
+    consulta = consulta.eq("id", sessionStorage.getItem("usuarioId"));
 
   const resposta = await consulta;
 
@@ -299,6 +315,8 @@ async function carregarRegistros() {
 
 function sair() {
   sessionStorage.removeItem("usuarioLogado");
+  sessionStorage.removeItem("usuarioId");
+  sessionStorage.removeItem("tipoUsuario");
   window.location.href = "index.html";
 }
 
@@ -348,6 +366,12 @@ function configurarBarraMobile() {
 async function iniciar() {
   if (!sessionStorage.getItem("usuarioLogado"))
     return (window.location.href = "index.html");
+  try {
+    ehAdministrador = await atualizarTipoUsuario();
+  } catch (erro) {
+    mostrarMensagem("Erro ao verificar permissões: " + erro.message, true);
+    return;
+  }
   if (!ehAdministrador) document.querySelector(".criar-usuarios")?.remove();
 
   titulo.textContent = configuracao.titulo;

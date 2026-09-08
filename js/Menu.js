@@ -1,12 +1,22 @@
 async function protegerMenu() {
   if (!sessionStorage.getItem("usuarioLogado"))
-    window.location.href = "index.html";
-  if (sessionStorage.getItem("usuarioLogado") !== "ADMIN")
+    return (window.location.href = "index.html");
+  let ehAdministrador = false;
+  try {
+    ehAdministrador = await atualizarTipoUsuario();
+  } catch (erro) {
+    document.querySelector(".criar-usuarios")?.remove();
+    alert("Erro ao verificar permissões: " + erro.message);
+    return;
+  }
+  if (!ehAdministrador)
     document.querySelector(".criar-usuarios")?.remove();
 }
 
 async function sair() {
   sessionStorage.removeItem("usuarioLogado");
+  sessionStorage.removeItem("usuarioId");
+  sessionStorage.removeItem("tipoUsuario");
   window.location.href = "index.html";
 }
 

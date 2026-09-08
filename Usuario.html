@@ -25,6 +25,13 @@
             autocomplete="new-password"
           />
         </label>
+        <label id="campoTipo" hidden>Tipo
+          <select id="tipo" required>
+            <option value="" disabled selected>Seleione uma opção</option>
+            <option value="U">Usuário (U)</option>
+            <option value="A">Administrador (A)</option>
+          </select>
+        </label>
         <div class="acoes">
           <button type="submit">Salvar</button>
           <button id="limpar" type="button" class="cancelar">Limpar</button>

@@ -34,6 +34,8 @@ formLogin.addEventListener("submit", async function (evento) {
     }
 
     sessionStorage.setItem("usuarioLogado", buscaUsuario.data.usuario);
+    sessionStorage.setItem("usuarioId", String(buscaUsuario.data.id));
+    sessionStorage.setItem("tipoUsuario", buscaUsuario.data.tipo === "A" ? "A" : "U");
     window.location.href = "Menu.html";
   } catch (erro) {
     avisar("Não foi possível conectar ao Supabase: " + erro.message, true);

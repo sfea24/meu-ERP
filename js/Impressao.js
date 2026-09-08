@@ -34,8 +34,6 @@ if (!dados) {
   const dadosImpressao = document.getElementById("dadosImpressao");
   [
     ["Cliente", dados.cliente],
-    ["Telefone", dados.telefone],
-    ["Endereço", dados.endereco],
     ["Responsável", dados.responsavel],
     ["Data de emissão", dados.dataEmissao],
     ["Válido até", dados.dataValidade],

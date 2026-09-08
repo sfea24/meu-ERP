@@ -41,7 +41,7 @@ body {
   gap: 16px;
   justify-content: space-between;
   left: 0;
-  padding: 12px clamp(14px, 6vw, 80px);
+  padding: 6px clamp(14px, 6vw, 80px);
   position: fixed;
   right: 0;
   top: 0;
@@ -49,8 +49,8 @@ body {
 }
 .barra-navegacao .marca {
   display: block;
-  height: 100px;
-  width: 92px;
+  height: 56px;
+  width: 64px;
 }
 .barra-navegacao .marca img {
   height: 100%;
@@ -159,10 +159,19 @@ body {
   display: none;
 }
 .com-barra-navegacao {
-  padding-top: 118px;
+  padding-top: 88px;
+}
+.com-barra-navegacao.tela-consulta {
+  align-items: flex-start;
+  padding-top: 73px;
+}
+.tela-consulta main > h1 {
+  line-height: 1.2;
+  margin-top: 0;
 }
 .pagina-consulta {
   max-width: 1280px;
+  min-width: 0;
   font-size: 17px;
   width: 100%;
 }
@@ -385,6 +394,27 @@ nav a:hover {
   overflow-x: auto;
   width: 100%;
 }
+.pagina-consulta .tabela-responsiva {
+  overflow: visible;
+}
+.pagina-consulta table {
+  table-layout: fixed;
+}
+.pagina-consulta th,
+.pagina-consulta td {
+  overflow-wrap: anywhere;
+  padding: 10px 8px;
+}
+.pagina-consulta th:first-child {
+  width: 72px;
+}
+.pagina-consulta .cabecalho-acoes {
+  padding-right: 8px !important;
+  width: 164px;
+}
+.pagina-consulta .paginacao {
+  flex-wrap: wrap;
+}
 table {
   border-collapse: collapse;
   min-width: 0;
@@ -552,11 +582,13 @@ td {
   font-weight: 700;
   padding: 4px 9px;
 }
-.status-ativo {
+.status-ativo,
+#status_produto:has(option[value="ATIVO"]:checked) {
   background: #dcfce7;
   color: #15803d;
 }
-.status-inativo {
+.status-inativo,
+#status_produto:has(option[value="INATIVO"]:checked) {
   background: #fee2e2;
   color: #b91c1c;
 }
@@ -649,6 +681,48 @@ td {
   }
   .com-barra-navegacao {
     padding-top: 20px;
+  }
+  .com-barra-navegacao.tela-consulta {
+    padding-top: 44px;
+  }
+}
+@media (max-width: 640px) {
+  .pagina-consulta h1 {
+    font-size: 24px;
+    overflow-wrap: anywhere;
+  }
+  .pagina-consulta table,
+  .pagina-consulta tbody,
+  .pagina-consulta tr {
+    display: block;
+    width: 100%;
+  }
+  .pagina-consulta thead {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    width: 1px;
+  }
+  .pagina-consulta tr + tr {
+    border-top: 2px solid #cbd5e1;
+    margin-top: 16px;
+    padding-top: 8px;
+  }
+  .pagina-consulta td {
+    display: block;
+    text-align: left;
+  }
+  .pagina-consulta td[data-label]::before {
+    color: #475569;
+    content: attr(data-label);
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .pagina-consulta .botao-tabela {
+    margin: 2px 6px 2px 0;
   }
 }
 @media (max-width: 480px) {

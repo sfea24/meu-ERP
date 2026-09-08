@@ -4,12 +4,14 @@ const formCadastro = document.getElementById("formCadastro");
 const listaRegistros = document.getElementById("listaRegistros");
 const mensagem = document.getElementById("mensagem");
 const registroId = document.getElementById("registroId");
-const ehAdministrador = sessionStorage.getItem("usuarioLogado") === "ADMIN";
+let ehAdministrador = false;
 
 let registros = [];
 let produtosOrcamento = [];
 let buscaCliente;
 let buscaCategoria;
+let salvandoRegistro = false;
+let imprimindoOrcamento = false;
 
 function avisar(texto, erro = false) {
   mensagem.textContent = texto;
@@ -65,6 +67,13 @@ async function protegerPagina() {
     return false;
   }
 
+  try {
+    ehAdministrador = await atualizarTipoUsuario();
+  } catch (erro) {
+    avisar("Erro ao verificar permissões: " + erro.message, true);
+    return false;
+  }
+
   return config.permitirAcesso?.() ?? true;
 }
 
@@ -111,6 +120,8 @@ function adicionarBarraNavegacao() {
   document.querySelector(".voltar")?.remove();
   document.getElementById("botaoSair").addEventListener("click", () => {
     sessionStorage.removeItem("usuarioLogado");
+    sessionStorage.removeItem("usuarioId");
+  sessionStorage.removeItem("tipoUsuario");
     window.location.href = "index.html";
   });
 
@@ -584,9 +595,7 @@ function lerFormulario() {
   return campos;
 }
 
-formCadastro.addEventListener("submit", async (evento) => {
-  evento.preventDefault();
-
+async function persistirRegistro({ redirecionar = true } = {}) {
   if (config.validarCriacao && !config.validarCriacao()) return;
 
   if (config.validar && !config.validar()) return;
@@ -628,6 +637,7 @@ formCadastro.addEventListener("submit", async (evento) => {
   config.aposSalvar?.({ id, campos });
   if (tabela === "orcamento") {
     const orcamentoId = id || resposta.data[config.chave];
+    registroId.value = orcamentoId;
     const erroItens = await salvarItensOrcamento(orcamentoId, itens);
     if (erroItens)
       return avisar(
@@ -636,8 +646,56 @@ formCadastro.addEventListener("submit", async (evento) => {
         true,
       );
   }
-  window.location.href = `Consulta.html?tipo=${tabela}`;
+  if (redirecionar) window.location.href = `Consulta.html?tipo=${tabela}`;
+  return true;
+}
+
+async function salvarRegistro(opcoes) {
+  if (salvandoRegistro || !formCadastro.reportValidity()) return false;
+  salvandoRegistro = true;
+  try {
+    return await persistirRegistro(opcoes);
+  } catch (erro) {
+    avisar("Erro ao salvar: " + erro.message, true);
+    return false;
+  } finally {
+    salvandoRegistro = false;
+  }
+}
+
+formCadastro.addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+  if (imprimindoOrcamento) return;
+  await salvarRegistro();
 });
+
+async function salvarEImprimirOrcamento() {
+  if (salvandoRegistro || imprimindoOrcamento || !formCadastro.reportValidity()) return;
+
+  // Abre durante o clique para evitar bloqueio de pop-up após a gravação.
+  const janela = window.open("about:blank", "_blank");
+  if (!janela) {
+    avisar("Permita pop-ups para salvar e imprimir o orçamento.", true);
+    return;
+  }
+
+  imprimindoOrcamento = true;
+  const botao = document.getElementById("imprimirOrcamento");
+  botao.disabled = true;
+  try {
+    if (!(await salvarRegistro({ redirecionar: false }))) {
+      janela.close();
+      return;
+    }
+    if (!(await config.imprimir(janela))) janela.close();
+  } catch (erro) {
+    janela.close();
+    avisar("O orçamento foi salvo, mas não foi possível imprimir: " + erro.message, true);
+  } finally {
+    imprimindoOrcamento = false;
+    botao.disabled = false;
+  }
+}
 
 function limparFormulario() {
   formCadastro.reset();
@@ -734,7 +792,7 @@ async function iniciar() {
     ?.addEventListener("input", () => config.recalcularTotal());
   document
     .getElementById("imprimirOrcamento")
-    ?.addEventListener("click", () => config.imprimir?.());
+    ?.addEventListener("click", salvarEImprimirOrcamento);
 }
 
 iniciar();

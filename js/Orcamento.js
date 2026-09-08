@@ -71,12 +71,12 @@ window.configuracaoCadastro = {
       subtotal - desconto,
     ).toFixed(2);
   },
-  async imprimir() {
+  async imprimir(janela) {
     const itens = this.obterItens();
     const clienteId = document.getElementById("clienteid").value;
     const respostaCliente = await supabaseClient
       .from("cliente")
-      .select("nome_cliente, telefone, endereco")
+      .select("nome_cliente")
       .eq("clienteid", clienteId)
       .maybeSingle();
 
@@ -108,8 +108,6 @@ window.configuracaoCadastro = {
     );
     const dadosImpressao = {
       cliente,
-      telefone: respostaCliente.data?.telefone || "Não informado",
-      endereco: respostaCliente.data?.endereco || "Não informado",
       responsavel,
       dataEmissao,
       dataValidade,
@@ -128,15 +126,11 @@ window.configuracaoCadastro = {
       }),
     };
 
-    sessionStorage.setItem(
+    janela.sessionStorage.setItem(
       "orcamentoParaImpressao",
       JSON.stringify(dadosImpressao),
     );
-    const janela = window.open("Impressao.html", "_blank");
-    if (!janela)
-      avisar(
-        "Não foi possível abrir a impressão. Verifique se o navegador bloqueou pop-ups.",
-        true,
-      );
+    janela.location.href = "Impressao.html";
+    return true;
   },
 };
