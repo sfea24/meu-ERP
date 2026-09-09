@@ -105,6 +105,7 @@ function adicionarBarraNavegacao() {
 
   document.body.classList.add("com-barra-navegacao");
   document.getElementById("botaoSair").addEventListener("click", () => {
+    if (window.OrcamentoRascunho && !OrcamentoRascunho.confirmarSaida()) return;
     sessionStorage.removeItem("usuarioLogado");
     sessionStorage.removeItem("usuarioId");
   sessionStorage.removeItem("tipoUsuario");
@@ -277,7 +278,8 @@ async function carregarProdutosOrcamento() {
 
   produtosOrcamento = resposta.data;
 
-  const orcamentoId = new URLSearchParams(window.location.search).get("editar");
+  const parametros = new URLSearchParams(window.location.search);
+  const orcamentoId = parametros.get("editar") || parametros.get("duplicar");
 
   if (orcamentoId) {
     const itens = await supabaseClient
@@ -410,6 +412,7 @@ function adicionarItemOrcamento(produtoId = "", quantidade = 1, valorSalvo = nul
     if (!confirm("Deseja remover este produto do orçamento?")) return;
     item.remove();
     config.recalcularTotal();
+    window.OrcamentoRascunho?.registrar();
   });
 
   produto.addEventListener("change", () => {
@@ -421,6 +424,7 @@ function adicionarItemOrcamento(produtoId = "", quantidade = 1, valorSalvo = nul
   item.append(rotular("Descrição", campoProduto), rotular("Quantidade", quantidadeInput), preco, remover);
   listaItens.appendChild(item);
   config.recalcularTotal();
+  window.OrcamentoRascunho?.registrar();
 }
 
 function lerFormulario() {
@@ -479,6 +483,7 @@ async function persistirRegistro({ redirecionar = true } = {}) {
   config.aposSalvar?.({ id, campos });
   if (tabela === "orcamento") {
     registroId.value = resposta.data;
+    window.OrcamentoRascunho?.salvo({ redirecionar });
   }
   if (redirecionar) window.location.href = `Consulta.html?tipo=${tabela}`;
   return true;
@@ -487,12 +492,16 @@ async function persistirRegistro({ redirecionar = true } = {}) {
 async function salvarRegistro(opcoes) {
   if (salvandoRegistro || !formCadastro.reportValidity()) return false;
   salvandoRegistro = true;
+  const controles = tabela === "orcamento"
+    ? [...formCadastro.elements].map(elemento => [elemento, elemento.disabled]) : [];
+  controles.forEach(([elemento]) => { elemento.disabled = true; });
   try {
     return await persistirRegistro(opcoes);
   } catch (erro) {
     avisar("Erro ao salvar: " + erro.message, true);
     return false;
   } finally {
+    controles.forEach(([elemento, desabilitado]) => { elemento.disabled = desabilitado; });
     salvandoRegistro = false;
   }
 }
@@ -532,6 +541,8 @@ async function salvarEImprimirOrcamento() {
 }
 
 function limparFormulario() {
+  if (salvandoRegistro || imprimindoOrcamento) return;
+  if (window.OrcamentoRascunho && !OrcamentoRascunho.confirmarLimpeza()) return;
   formCadastro.reset();
   registroId.value = "";
   config.preencherCamposPadrao?.();
@@ -541,11 +552,14 @@ function limparFormulario() {
     buscaCliente?.atualizar();
     document.getElementById("itensOrcamento").innerHTML = "";
     config.recalcularTotal();
+    window.OrcamentoRascunho?.limpo();
   }
 }
 
 async function carregarRegistroParaEditar() {
-  const id = new URLSearchParams(window.location.search).get("editar");
+  const parametros = new URLSearchParams(window.location.search);
+  const duplicando = tabela === "orcamento" && !parametros.get("editar") && parametros.has("duplicar");
+  const id = parametros.get("editar") || (duplicando ? parametros.get("duplicar") : null);
 
   if (!id) return;
   if (config.permitirEdicao && !config.permitirEdicao(id)) return;
@@ -556,11 +570,13 @@ async function carregarRegistroParaEditar() {
     .eq(config.chave, id)
     .single();
 
-  if (resposta.error)
-    return avisar(
+  if (resposta.error) {
+    avisar(
       "Erro ao carregar o registro: " + resposta.error.message,
       true,
     );
+    return false;
+  }
 
   const registro = config.normalizarRegistro?.(resposta.data) ?? resposta.data;
   registroId.value = registro[config.chave];
@@ -584,11 +600,13 @@ async function carregarRegistroParaEditar() {
       .select("produtoid, qt_produto, vl_unitario")
       .eq("orcamentoid", id);
 
-    if (respostaItens.error)
-      return avisar(
+    if (respostaItens.error) {
+      avisar(
         "Erro ao carregar os produtos: " + respostaItens.error.message,
         true,
       );
+      return false;
+    }
 
     document.getElementById("itensOrcamento").innerHTML = "";
     respostaItens.data.forEach((item) =>
@@ -596,6 +614,12 @@ async function carregarRegistroParaEditar() {
     );
 
     if (!respostaItens.data.length) config.recalcularTotal();
+    if (duplicando) {
+      registroId.value = "";
+      config.preencherCamposPadrao();
+      document.querySelector("h1").textContent = "Duplicar orçamento";
+      avisar(`Cópia do orçamento nº ${id}. Confira os dados e salve para gerar um novo número.`);
+    }
   }
 }
 
@@ -614,9 +638,13 @@ async function iniciar() {
   config.iniciar?.();
 
   await carregarProdutosOrcamento();
-  await carregarRegistroParaEditar();
+  if (await carregarRegistroParaEditar() === false) {
+    [...formCadastro.elements].forEach(elemento => { elemento.disabled = true; });
+    return;
+  }
 
   config.preencherCamposPadrao?.();
+  if (tabela === "orcamento") await window.OrcamentoRascunho?.iniciar();
 
   document
     .getElementById("adicionarItem")

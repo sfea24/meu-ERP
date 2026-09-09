@@ -57,13 +57,14 @@ const tipos = {
     titulo: "Consulta de Orçamentos",
     chave: "orcamentoid",
     pagina: "Orcamento.html",
-    colunas: ["Cliente", "Data", "Validade", "Valor total"],
+    colunas: ["Cliente", "Data", "Validade", "Valor total", "Situação"],
     select: "orcamentoid, dt_orcamento, dt_validade_orcamento, vl_total_orcamento, cliente(nome_cliente)",
     valores: (item) => [
       item.cliente?.nome_cliente,
       data(item.dt_orcamento),
       data(item.dt_validade_orcamento),
       moeda(item.vl_total_orcamento),
+      situacaoValidade(item.dt_validade_orcamento),
     ],
   },
 
@@ -96,6 +97,13 @@ function moeda(valor) {
 
 function data(valor) {
   return valor ? String(valor).slice(0, 10).split("-").reverse().join("/") : "";
+}
+
+function situacaoValidade(valor, agora = new Date()) {
+  const validade = new Date(valor || "");
+  if (Number.isNaN(validade.getTime())) return "SEM VALIDADE";
+  if (validade <= agora) return "VENCIDO";
+  return validade.toDateString() === agora.toDateString() ? "VENCE HOJE" : "VÁLIDO";
 }
 
 function mostrarMensagem(texto, erro = false) {
@@ -167,6 +175,13 @@ function mostrarTabela() {
 
       coluna.textContent = valor ?? "";
       coluna.dataset.label = configuracao.colunas[indice];
+      if (tabela === "orcamento" && configuracao.colunas[indice] === "Situação") {
+        const etiqueta = document.createElement("span");
+        const classe = { "VÁLIDO": "ativo", "VENCIDO": "inativo", "VENCE HOJE": "atencao" }[valor] || "neutro";
+        etiqueta.className = `status-produto status-${classe}`;
+        etiqueta.textContent = valor;
+        coluna.replaceChildren(etiqueta);
+      }
       if (tabela === "produto" && configuracao.colunas[indice] === "Status") {
         const status = String(valor ?? "").trim().toUpperCase();
         if (["ATIVO", "INATIVO"].includes(status)) {
@@ -183,6 +198,7 @@ function mostrarTabela() {
     const acoes = document.createElement("td");
     acoes.dataset.label = "Ações";
     acoes.className = "celula-acoes";
+    if (tabela === "orcamento") acoes.classList.add("acoes-orcamento");
     const editar = document.createElement("button");
 
     editar.textContent = "Editar";
@@ -195,6 +211,14 @@ function mostrarTabela() {
 
     acoes.appendChild(editar);
     if (tabela === "orcamento") {
+      const duplicar = document.createElement("button");
+      duplicar.type = "button";
+      duplicar.textContent = "Duplicar";
+      duplicar.className = "botao-tabela";
+      duplicar.addEventListener("click", () => {
+        window.location.href = `Orcamento.html?duplicar=${encodeURIComponent(item.orcamentoid)}`;
+      });
+      acoes.appendChild(duplicar);
       const imprimir = document.createElement("button");
       imprimir.type = "button";
       imprimir.textContent = "Imprimir";
@@ -423,6 +447,7 @@ async function iniciar() {
   });
 
   await carregarRegistros();
+  if (tabela === "orcamento") setInterval(mostrarTabela, 30000);
 }
 
 iniciar();
