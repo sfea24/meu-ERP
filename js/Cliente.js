@@ -25,6 +25,50 @@ function formatarCnpj(valor) {
   return cnpj;
 }
 
+function formatarTelefone(valor) {
+  const numeros = String(valor ?? "").replace(/\D/g, "").slice(0, 11);
+  if (!numeros) return "";
+  if (numeros.length <= 2) return "(" + numeros;
+  const numero = numeros.slice(2);
+  const tamanhoPrefixo = numeros.length === 11 ? 5 : 4;
+  const parteFinal = numero.length > tamanhoPrefixo ? "-" + numero.slice(tamanhoPrefixo) : "";
+  return "(" + numeros.slice(0, 2) + ") " + numero.slice(0, tamanhoPrefixo) + parteFinal;
+}
+
+function atualizarTelefone() {
+  const campo = document.getElementById("telefone");
+  campo.value = formatarTelefone(campo.value);
+}
+
+function configurarTelefone() {
+  const campo = document.getElementById("telefone");
+  function aplicarMascara() {
+    const quantidadeAntes = campo.value.slice(0, campo.selectionStart ?? campo.value.length)
+      .replace(/\D/g, "").length;
+    campo.value = formatarTelefone(campo.value);
+    let posicao = 0, encontrados = 0;
+    while (posicao < campo.value.length && encontrados < quantidadeAntes) {
+      if (/\d/.test(campo.value[posicao])) encontrados++;
+      posicao++;
+    }
+    campo.setSelectionRange(posicao, posicao);
+  }
+  campo.addEventListener("input", aplicarMascara);
+  campo.addEventListener("beforeinput", evento => {
+    if (!["deleteContentBackward", "deleteContentForward"].includes(evento.inputType)
+        || campo.selectionStart !== campo.selectionEnd) return;
+    const numeros = campo.value.replace(/\D/g, "");
+    const antes = campo.value.slice(0, campo.selectionStart).replace(/\D/g, "").length;
+    const indice = evento.inputType === "deleteContentBackward" ? antes - 1 : antes;
+    evento.preventDefault();
+    if (indice < 0 || indice >= numeros.length) return;
+    campo.value = numeros.slice(0, indice) + numeros.slice(indice + 1);
+    campo.setSelectionRange(indice, indice);
+    campo.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  atualizarTelefone();
+}
+
 function configurarCpfCnpj() {
   const tipoCliente = document.getElementById("tipo_cliente");
   const documento = document.getElementById("cpf_cnpj_cliente");
@@ -76,14 +120,16 @@ window.configuracaoCadastro = {
     "tipo_cliente",
     "cpf_cnpj_cliente",
     "nome_cliente",
+    "telefone",
+    "endereco",
   ],
-  dependencia: [
-    "orcamento",
-    "clienteid",
-    "Este cliente possui orçamentos cadastrados.",
-  ],
-  formatarLinha: (item) =>
-    `<td>${escaparHtml(item.tipo_cliente)}</td><td>${escaparHtml(item.cpf_cnpj_cliente)}</td><td>${escaparHtml(item.nome_cliente)}</td>`,
-  iniciar: configurarCpfCnpj,
+  iniciar() {
+    configurarCpfCnpj();
+    configurarTelefone();
+  },
+  atualizarBusca: atualizarTelefone,
+  normalizarCampos(campos) {
+    campos.telefone = formatarTelefone(campos.telefone);
+  },
   validar: documentoClienteValido,
 };

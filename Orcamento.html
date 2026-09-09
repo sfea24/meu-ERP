@@ -1,79 +1,60 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orçamentos - SaberTI</title>
-    <link rel="stylesheet" href="css/Style.css" />
-  </head>
-  <body data-tabela="orcamento">
+    <link rel="stylesheet" href="css/Style.css">
+</head>
+
+<body data-tabela="orcamento">
     <main class="pagina-cadastro">
-      <h1>Cadastro de Orçamentos</h1>
-      <form id="formCadastro">
-        <input id="registroId" type="hidden" />
-        <label
-          >Cliente
-          <div class="campo-autocomplete">
-            <input
-              id="buscaCliente"
-              type="search"
-              placeholder="Digite para buscar um cliente"
-              autocomplete="off"
-              aria-label="Buscar cliente"
-            />
-            <div
-              id="sugestoesCliente"
-              class="lista-sugestoes"
-              role="listbox"
-            ></div>
-          </div>
-          <select id="clienteid" hidden aria-hidden="true"></select
-        ></label>
-        <input id="dt_orcamento" type="hidden" />
-        <label
-          >Data de validade
-          <input id="dt_validade_orcamento" type="datetime-local" required />
-        </label>
-        <section class="itens-orcamento">
-          <h2>Produtos do orçamento</h2>
-          <div id="itensOrcamento"></div>
-          <button id="adicionarItem" type="button">Adicionar produto</button>
-        </section>
-        <label
-          >Desconto (R$)
-          <input
-            id="desconto"
-            type="number"
-            step="0.01"
-            min="0"
-            value="0"
-            placeholder="0,00"
-          />
-        </label>
-        <label
-          >Valor total
-          <input
-            id="vl_total_orcamento"
-            type="number"
-            step="0.01"
-            min="0"
-            value="0"
-            readonly
-          />
-        </label>
-        <div class="acoes">
-          <button type="submit">Salvar</button
-          ><button id="limpar" type="button" class="cancelar">Limpar</button
-          ><button id="imprimirOrcamento" type="button" class="botao-imprimir">
-            Imprimir orçamento
-          </button>
-        </div>
-      </form>
-      <p id="mensagem" aria-live="polite"></p>
+        <h1>Cadastro de Orçamentos</h1>
+        <form id="formCadastro">
+            <input id="registroId" type="hidden"><input id="dt_orcamento" type="hidden">
+            <label>Cliente
+                <div class="campo-autocomplete">
+                    <input id="buscaCliente" type="search"
+                        placeholder="Digite e selecione um cliente" 
+                        autocomplete="off" required
+                        aria-label="Buscar cliente">
+                    <div id="sugestoesCliente" class="lista-sugestoes" role="listbox"></div>
+                </div>
+                <select id="clienteid" hidden aria-hidden="true"></select>
+            </label>
+            <label>Validade do orçamento
+                <input id="dt_validade_orcamento" type="datetime-local" required>
+            </label>
+            <section class="itens-orcamento">
+                <h2>Produtos</h2>
+                <div id="itensOrcamento"></div>
+                <button id="adicionarItem" type="button">Adicionar item</button>
+            </section>
+            <label>
+                <span id="rotuloDesconto">Desconto (R$)</span>
+                <input id="desconto_informado" type="number"
+                    step="0.01" min="0" value="0" required>
+                </label>
+            <label>Valor total (R$)<input id="vl_total_orcamento" type="number" step="0.01" value="0.00"
+                    readonly></label>
+            <input id="desconto" type="hidden" value="0">
+            
+            <div class="acoes">
+                <button type="submit">Salvar orçamento</button>
+                <button id="imprimirOrcamento"
+                    type="button" class="botao-imprimir">Salvar e gerar PDF</button><button id="limpar" type="button"
+                    class="cancelar">Limpar</button>
+                </div>
+        </form>
+        <p id="mensagem" aria-live="polite"></p>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/Supabase.js"></script>
+    <script src="js/CalculoOrcamento.js"></script>
+    <script src="js/OrcamentoImpressao.js"></script>
     <script src="js/Orcamento.js"></script>
     <script src="js/Crud.js"></script>
-  </body>
+</body>
+
 </html>

@@ -19,12 +19,14 @@ const tipos = {
     titulo: "Consulta de Clientes",
     chave: "clienteid",
     pagina: "Cliente.html",
-    colunas: ["Tipo", "CPF/CNPJ", "Nome"],
-    select: "clienteid, tipo_cliente, cpf_cnpj_cliente, nome_cliente",
+    colunas: ["Tipo", "CPF/CNPJ", "Nome", "Telefone", "Endereço"],
+    select: "clienteid, tipo_cliente, cpf_cnpj_cliente, nome_cliente, telefone, endereco",
     valores: (item) => [
       item.tipo_cliente,
       item.cpf_cnpj_cliente,
       item.nome_cliente,
+      item.telefone || "—",
+      item.endereco || "—",
     ],
   },
 
@@ -112,6 +114,7 @@ function criarCabecalho() {
 
     if (nome === "Ações") {
       coluna.className = "cabecalho-acoes";
+      if (tabela === "orcamento") coluna.classList.add("acoes-orcamento");
     }
 
     linha.appendChild(coluna);
@@ -179,6 +182,7 @@ function mostrarTabela() {
 
     const acoes = document.createElement("td");
     acoes.dataset.label = "Ações";
+    acoes.className = "celula-acoes";
     const editar = document.createElement("button");
 
     editar.textContent = "Editar";
@@ -190,6 +194,26 @@ function mostrarTabela() {
     );
 
     acoes.appendChild(editar);
+    if (tabela === "orcamento") {
+      const imprimir = document.createElement("button");
+      imprimir.type = "button";
+      imprimir.textContent = "Imprimir";
+      imprimir.className = "botao-tabela";
+      imprimir.addEventListener("click", async () => {
+        const janela = window.open("about:blank", "_blank");
+        if (!janela) return mostrarMensagem("Permita pop-ups para imprimir o orçamento.", true);
+        imprimir.disabled = true;
+        try {
+          await enviarOrcamentoParaImpressao(item.orcamentoid, janela);
+        } catch (erro) {
+          janela.close();
+          mostrarMensagem("Erro ao imprimir: " + erro.message, true);
+        } finally {
+          imprimir.disabled = false;
+        }
+      });
+      acoes.appendChild(imprimir);
+    }
     if (tabela !== "usuarios" || ehAdministrador) {
       const excluir = document.createElement("button");
 

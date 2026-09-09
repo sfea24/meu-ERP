@@ -10,7 +10,6 @@ window.configuracaoCadastro = {
   normalizarCampos(campos) {
     if (!ehAdministrador) delete campos.tipo;
   },
-  formatarLinha: (item) => `<td>${escaparHtml(item.usuario)}</td>`,
   permitirAcesso() {
     const editando = new URLSearchParams(window.location.search).get("editar");
     if (

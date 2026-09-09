@@ -1,12 +1,10 @@
-const config = window.configuracaoCadastro;
+﻿const config = window.configuracaoCadastro;
 const tabela = config?.tabela;
 const formCadastro = document.getElementById("formCadastro");
-const listaRegistros = document.getElementById("listaRegistros");
 const mensagem = document.getElementById("mensagem");
 const registroId = document.getElementById("registroId");
 let ehAdministrador = false;
 
-let registros = [];
 let produtosOrcamento = [];
 let buscaCliente;
 let buscaCategoria;
@@ -26,17 +24,6 @@ function escaparHtml(texto) {
   elemento.textContent = texto ?? "";
 
   return elemento.innerHTML;
-}
-
-function formatarMoeda(valor) {
-  return Number(valor).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-}
-
-function formatarData(data) {
-  return data ? String(data).slice(0, 10).split("-").reverse().join("/") : "";
 }
 
 function formatarDataHoraParaCampo(data) {
@@ -117,7 +104,6 @@ function adicionarBarraNavegacao() {
   );
 
   document.body.classList.add("com-barra-navegacao");
-  document.querySelector(".voltar")?.remove();
   document.getElementById("botaoSair").addEventListener("click", () => {
     sessionStorage.removeItem("usuarioLogado");
     sessionStorage.removeItem("usuarioId");
@@ -334,7 +320,7 @@ async function carregarProdutosOrcamento() {
   }
 }
 
-function adicionarItemOrcamento(produtoId = "", quantidade = 1) {
+function adicionarItemOrcamento(produtoId = "", quantidade = 1, valorSalvo = null) {
   const listaItens = document.getElementById("itensOrcamento");
   const item = document.createElement("div");
 
@@ -361,7 +347,7 @@ function adicionarItemOrcamento(produtoId = "", quantidade = 1) {
           ? " (Inativo)"
           : "";
 
-      opcao.textContent = `${produtoBanco.ds_produto} - ${formatarMoeda(produtoBanco.vl_venda_produto)}${inativo}`;
+      opcao.textContent = `${produtoBanco.ds_produto}${inativo}`;
       produto.appendChild(opcao);
     });
 
@@ -403,6 +389,17 @@ function adicionarItemOrcamento(produtoId = "", quantidade = 1) {
   quantidadeInput.min = "1";
   quantidadeInput.value = quantidade;
   quantidadeInput.required = true;
+  quantidadeInput.max = "1000000";
+  quantidadeInput.step = "1";
+  const preco = document.createElement("input");
+  preco.className = "valor-orcamento";
+  preco.type = "hidden";
+  preco.value = valorSalvo ?? "";
+  function rotular(texto, elemento) {
+    const label = document.createElement("label");
+    label.append(texto, elemento);
+    return label;
+  }
 
   const remover = document.createElement("button");
 
@@ -415,167 +412,15 @@ function adicionarItemOrcamento(produtoId = "", quantidade = 1) {
     config.recalcularTotal();
   });
 
-  produto.addEventListener("change", () => config.recalcularTotal());
+  produto.addEventListener("change", () => {
+    preco.value = produtosOrcamento.find(p => p.produtoid === Number(produto.value))?.vl_venda_produto ?? "";
+    config.recalcularTotal();
+  });
   quantidadeInput.addEventListener("input", () => config.recalcularTotal());
-  item.append(campoProduto, quantidadeInput, remover);
+  buscaProduto.addEventListener("input", () => config.recalcularTotal());
+  item.append(rotular("Descrição", campoProduto), rotular("Quantidade", quantidadeInput), preco, remover);
   listaItens.appendChild(item);
   config.recalcularTotal();
-}
-
-async function salvarItensOrcamento(orcamentoId, itens) {
-  const apagar = await supabaseClient
-    .from("orcamento_item")
-    .delete()
-    .eq("orcamentoid", orcamentoId);
-
-  if (apagar.error) return apagar.error;
-
-  const ultimoItem = await supabaseClient
-    .from("orcamento_item")
-    .select("orcamentoitemid")
-    .order("orcamentoitemid", { ascending: false })
-    .limit(1);
-
-  if (ultimoItem.error) return ultimoItem.error;
-
-  let proximoId = ultimoItem.data.length
-    ? Number(ultimoItem.data[0].orcamentoitemid) + 1
-    : 1;
-
-  const dados = itens.map((item) => ({
-    orcamentoitemid: proximoId++,
-    orcamentoid: orcamentoId,
-    produtoid: item.produtoid,
-    qt_produto: item.quantidade,
-    vl_unitario: item.valor,
-    vl_total: item.valor * item.quantidade,
-  }));
-
-  const inserir = await supabaseClient.from("orcamento_item").insert(dados);
-
-  return inserir.error;
-}
-
-async function listarRegistros() {
-  const consulta = supabaseClient
-    .from(tabela)
-    .select(config.consulta || "*")
-    .order(config.chave, { ascending: false });
-
-  const resposta = await consulta;
-
-  if (resposta.error)
-    return avisar("Erro ao listar: " + resposta.error.message, true);
-
-  registros = resposta.data;
-  desenharTabela();
-}
-
-function desenharTabela() {
-  if (registros.length === 0) {
-    listaRegistros.innerHTML =
-      '<tr><td colspan="8">Nenhum registro cadastrado.</td></tr>';
-    return;
-  }
-
-  listaRegistros.innerHTML = registros
-    .map((item) => {
-      const colunas = config.formatarLinha?.(item) || "";
-
-      return `<tr>
-      ${colunas}<td>
-      <button class="botao-tabela" onclick="editarRegistro(${item[config.chave]})">Editar</button
-      ><button class="botao-tabela botao-excluir" onclick="excluirRegistro(${item[config.chave]})">Excluir</button>
-      </td>
-      </tr>`;
-    })
-    .join("");
-}
-
-function editarRegistro(id) {
-  const item = registros.find((registro) => registro[config.chave] === id);
-
-  if (!item) return;
-
-  registroId.value = item[config.chave];
-  config.campos.forEach((campo) => {
-    const input = document.getElementById(campo);
-
-    if (!input) return;
-    if (campo.startsWith("dt_"))
-      input.value = formatarDataHoraParaCampo(item[campo]);
-    else if (campo === "status_produto")
-      input.value = statusProduto(item[campo]);
-    else input.value = item[campo] ?? "";
-  });
-
-  window.scrollTo(0, 0);
-}
-
-async function possuiDependencias(id) {
-  const dependencia = config.dependencia;
-
-  if (!dependencia) return false;
-
-  const resposta = await supabaseClient
-    .from(dependencia[0])
-    .select(dependencia[1])
-    .eq(dependencia[1], id)
-    .limit(1);
-
-  if (resposta.error) {
-    avisar(
-      "Erro ao verificar dados vinculados: " + resposta.error.message,
-      true,
-    );
-    return true;
-  }
-
-  if (resposta.data.length) {
-    avisar(
-      `${dependencia[2]} Exclua ou altere os registros vinculados primeiro.`,
-      true,
-    );
-    return true;
-  }
-
-  return false;
-}
-
-async function excluirRegistro(id) {
-  const confirmacao = "Deseja excluir este registro?";
-
-  if (!confirm(confirmacao)) return;
-  if (await possuiDependencias(id)) return;
-
-  const resposta = await supabaseClient
-    .from(tabela)
-    .delete()
-    .eq(config.chave, id);
-
-  if (resposta.error) {
-    if (resposta.error.code === "23503") {
-      const mensagens = {
-        cliente:
-          "Não é possível excluir este cliente porque ele possui orçamentos cadastrados. Exclua ou altere os orçamentos primeiro.",
-
-        categoria_produto:
-          "Não é possível excluir esta categoria porque ela possui produtos cadastrados.",
-
-        produto:
-          "Não é possível excluir este produto porque ele está vinculado a itens de orçamento.",
-
-        orcamento:
-          "Não é possível excluir este orçamento porque ele possui itens cadastrados.",
-      };
-
-      return avisar(
-        mensagens[tabela] ??
-          "Não é possível excluir este registro porque ele possui dados vinculados.",
-        true,
-      );
-    }
-  }
 }
 
 function lerFormulario() {
@@ -623,7 +468,9 @@ async function persistirRegistro({ redirecionar = true } = {}) {
 
   if (id && !config.manterChaveNaEdicao) delete campos[config.chave];
 
-  const resposta = id
+  const resposta = tabela === "orcamento"
+    ? await config.salvar(id, campos, itens)
+    : id
     ? await supabaseClient.from(tabela).update(campos).eq(config.chave, id)
     : await supabaseClient.from(tabela).insert(campos).select(config.chave).single();
 
@@ -631,15 +478,7 @@ async function persistirRegistro({ redirecionar = true } = {}) {
     return avisar("Erro ao salvar: " + resposta.error.message, true);
   config.aposSalvar?.({ id, campos });
   if (tabela === "orcamento") {
-    const orcamentoId = id || resposta.data[config.chave];
-    registroId.value = orcamentoId;
-    const erroItens = await salvarItensOrcamento(orcamentoId, itens);
-    if (erroItens)
-      return avisar(
-        "O orçamento foi salvo, mas houve erro nos produtos: " +
-          erroItens.message,
-        true,
-      );
+    registroId.value = resposta.data;
   }
   if (redirecionar) window.location.href = `Consulta.html?tipo=${tabela}`;
   return true;
@@ -713,7 +552,7 @@ async function carregarRegistroParaEditar() {
 
   const resposta = await supabaseClient
     .from(tabela)
-    .select([...new Set([config.chave, ...config.campos])].join(", "))
+    .select(config.consultaEdicao || [...new Set([config.chave, ...config.campos])].join(", "))
     .eq(config.chave, id)
     .single();
 
@@ -723,7 +562,7 @@ async function carregarRegistroParaEditar() {
       true,
     );
 
-  const registro = resposta.data;
+  const registro = config.normalizarRegistro?.(resposta.data) ?? resposta.data;
   registroId.value = registro[config.chave];
   config.campos.forEach((campo) => {
     const input = document.getElementById(campo);
@@ -742,7 +581,7 @@ async function carregarRegistroParaEditar() {
   if (tabela === "orcamento") {
     const respostaItens = await supabaseClient
       .from("orcamento_item")
-      .select("produtoid, qt_produto")
+      .select("produtoid, qt_produto, vl_unitario")
       .eq("orcamentoid", id);
 
     if (respostaItens.error)
@@ -753,7 +592,7 @@ async function carregarRegistroParaEditar() {
 
     document.getElementById("itensOrcamento").innerHTML = "";
     respostaItens.data.forEach((item) =>
-      adicionarItemOrcamento(item.produtoid, item.qt_produto),
+      adicionarItemOrcamento(item.produtoid, item.qt_produto, item.vl_unitario),
     );
 
     if (!respostaItens.data.length) config.recalcularTotal();
@@ -782,9 +621,6 @@ async function iniciar() {
   document
     .getElementById("adicionarItem")
     ?.addEventListener("click", () => adicionarItemOrcamento());
-  document
-    .getElementById("desconto")
-    ?.addEventListener("input", () => config.recalcularTotal());
   document
     .getElementById("imprimirOrcamento")
     ?.addEventListener("click", salvarEImprimirOrcamento);

@@ -1,35 +1,61 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Impressão de orçamento - SaberTI</title>
-    <link rel="stylesheet" href="css/Style.css" />
-  </head>
-  <body class="pagina-impressao">
-    <main class="documento-impressao">
-      <header class="cabecalho-impressao">
-        <img src="Imagens/logo.png" alt="SaberTI" />
-        <div>
-          <h1>Orçamento</h1>
-          <p id="orientacaoPdf" class="orientacao-pdf" hidden></p>
-        </div>
-        <button id="botaoImprimir" type="button">Imprimir</button>
-      </header>
-      <table>
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Valor unitário</th>
-            <th>Subtotal</th>
-          </tr>
-        </thead>
-        <tbody id="itensImpressao"></tbody>
-      </table>
-      <p id="totaisImpressao" class="total-impressao"></p>
-      <footer id="dadosImpressao" class="dados-impressao"></footer>
-    </main>
-    <script src="js/Impressao.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orçamento - Ótica Visão</title>
+  <link rel="stylesheet" href="css/Impressao.css">
+</head>
+<body>
+  <div class="acoes-impressao">
+    <p id="orientacaoPdf" hidden></p>
+    <button id="botaoImprimir" type="button" disabled>Imprimir</button>
+  </div>
+  <p id="erroImpressao" class="erro-impressao" role="alert" hidden></p>
+  <main class="documento-impressao" hidden>
+    <header class="cabecalho-impressao">
+      <div class="identidade-empresa">
+        <img id="logoEmpresa" src="Imagens/logo.png" alt="Ótica Visão" width="160" height="100">
+        <p id="nomeEmpresa" class="nome-empresa">Ótica Visão</p>
+        <p id="documentoEmpresa" class="detalhe-empresa" hidden></p>
+        <p id="contatoEmpresa" class="detalhe-empresa" hidden></p>
+        <p id="enderecoEmpresa" class="detalhe-empresa" hidden></p>
+      </div>
+      <div class="identificacao-orcamento">
+        <h1>Orçamento</h1>
+        <p class="numero-orcamento">Nº <span id="numeroOrcamento"></span></p>
+        <dl class="datas-orcamento">
+          <div><dt>Emissão</dt><dd id="dataEmissao"></dd></div>
+          <div><dt>Válido até</dt><dd id="dataValidade"></dd></div>
+        </dl>
+      </div>
+    </header>
+    <section class="cliente-impressao" aria-labelledby="rotuloCliente">
+      <h2 id="rotuloCliente">Cliente</h2>
+      <p id="nomeCliente"></p>
+    </section>
+    <table class="itens-impressao" aria-label="Produtos do orçamento">
+      <colgroup><col class="col-descricao"><col class="col-quantidade"><col class="col-unitario"><col class="col-total"></colgroup>
+      <thead>
+        <tr class="referencia-itens"><th colspan="4">Produtos <span id="referenciaTabela"></span></th></tr>
+        <tr><th scope="col">Descrição</th><th scope="col">Qtd.</th><th scope="col">Valor unitário</th><th scope="col">Total do item</th></tr>
+      </thead>
+      <tbody id="itensImpressao"></tbody>
+    </table>
+    <section class="resumo-impressao" aria-label="Resumo financeiro">
+      <dl>
+        <div><dt>Subtotal</dt><dd id="subtotalImpressao"></dd></div>
+        <div id="linhaDesconto" hidden><dt>Desconto</dt><dd id="descontoImpressao"></dd></div>
+        <div class="total-final"><dt>Total do orçamento</dt><dd id="totalImpressao"></dd></div>
+      </dl>
+    </section>
+    <footer class="rodape-impressao">
+      <p><span>Responsável pela emissão</span><strong id="responsavelImpressao"></strong></p>
+      <p id="referenciaRodape"></p>
+    </footer>
+  </main>
+  <script src="js/Empresa.js"></script>
+  <script src="js/CalculoOrcamento.js"></script>
+  <script src="js/Impressao.js"></script>
+</body>
 </html>

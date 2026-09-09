@@ -227,16 +227,6 @@ nav .sair {
   color: #9f1239;
   margin-top: 10px;
 }
-.voltar {
-  color: #64748b;
-  display: inline-block;
-  font-size: 14px;
-  margin-bottom: 16px;
-  text-decoration: none;
-}
-.voltar:hover {
-  color: #2563eb;
-}
 form,
 .lista {
   background: rgba(255, 255, 255, 0.9);
@@ -347,6 +337,9 @@ select:focus {
   border-color: #ffe4e6;
   color: #be123c;
 }
+input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
+}
 button {
   background: #dbeafe;
   border: 1px solid #dbeafe;
@@ -415,6 +408,16 @@ nav a:hover {
 .pagina-consulta .paginacao {
   flex-wrap: wrap;
 }
+.pagina-consulta .cabecalho-acoes.acoes-orcamento {
+  width: 260px;
+}
+.pagina-consulta .celula-acoes {
+  white-space: nowrap;
+}
+.pagina-consulta .celula-acoes .botao-tabela {
+  display: inline-block;
+  white-space: nowrap;
+}
 table {
   border-collapse: collapse;
   min-width: 0;
@@ -474,106 +477,6 @@ td {
   background: #fff1f2;
   border-color: #ffe4e6;
   color: #be123c;
-}
-.pagina-impressao {
-  align-items: flex-start;
-  background: #fff;
-  display: block;
-  min-height: auto;
-  padding: 32px;
-}
-.documento-impressao {
-  color: #1e293b;
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-  max-width: 900px;
-  min-height: calc(297mm - 24mm);
-  width: 100%;
-}
-.cabecalho-impressao {
-  align-items: center;
-  border-bottom: 2px solid #1d4ed8;
-  display: flex;
-  gap: 20px;
-  padding-bottom: 18px;
-}
-.cabecalho-impressao img {
-  height: 80px;
-  object-fit: contain;
-  width: 100px;
-}
-.cabecalho-impressao h1 {
-  margin: 0;
-  text-align: left;
-}
-.cabecalho-impressao p {
-  margin: 6px 0 0;
-}
-.cabecalho-impressao .orientacao-pdf {
-  color: #64748b;
-  font-size: 13px;
-}
-.cabecalho-impressao button {
-  margin-left: auto;
-}
-.documento-impressao table {
-  border-collapse: collapse;
-  margin-top: 24px;
-  table-layout: fixed;
-  width: 100%;
-}
-.documento-impressao th,
-.documento-impressao td {
-  border: 1px solid #cbd5e1;
-  padding: 10px;
-  white-space: normal;
-}
-.documento-impressao th {
-  background: #dbeafe;
-  color: #1e40af;
-  font-size: 14px;
-}
-.documento-impressao td:nth-child(n + 2),
-.documento-impressao th:nth-child(n + 2) {
-  text-align: right;
-}
-.documento-impressao th:first-child,
-.documento-impressao td:first-child {
-  width: 42%;
-}
-.total-impressao {
-  font-size: 18px;
-  font-weight: 700;
-  text-align: right;
-}
-.dados-impressao {
-  border-top: 1px solid #cbd5e1;
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(2, 1fr);
-  margin-top: auto;
-  padding-top: 16px;
-}
-.dados-impressao p {
-  margin: 0;
-}
-@media print {
-  @page {
-    margin: 12mm;
-  }
-  .pagina-impressao {
-    padding: 0;
-  }
-  .documento-impressao {
-    max-width: none;
-  }
-  .cabecalho-impressao button {
-    display: none;
-  }
-  .orientacao-pdf {
-    display: none;
-  }
 }
 .status-produto {
   border-radius: 999px;

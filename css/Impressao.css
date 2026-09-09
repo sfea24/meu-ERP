@@ -1,0 +1,107 @@
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  padding: 24px;
+  color: #1e293b;
+  background: #fff;
+  font: 11pt/1.45 Arial, Helvetica, sans-serif;
+}
+.documento-impressao { max-width: 182mm; margin: 0 auto; }
+.acoes-impressao {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  max-width: 182mm;
+  margin: 0 auto 24px;
+}
+.acoes-impressao p { font-size: 10pt; }
+.acoes-impressao button {
+  padding: 10px 20px;
+  border: 1px solid #1d4ed8;
+  border-radius: 6px;
+  color: #fff;
+  background: #1d4ed8;
+  font: inherit;
+  cursor: pointer;
+}
+.acoes-impressao button:disabled { opacity: .5; cursor: wait; }
+.erro-impressao { max-width: 182mm; margin: 20px auto; color: #991b1b; }
+.cabecalho-impressao {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #1d4ed8;
+}
+.identidade-empresa { min-width: 0; flex: 1; }
+.identidade-empresa img { display: block; width: 160px; height: 100px; object-fit: contain; }
+.nome-empresa { margin: 10px 0 4px; font-size: 12pt; font-weight: 700; }
+.detalhe-empresa { margin: 2px 0; font-size: 9pt; overflow-wrap: anywhere; }
+.identificacao-orcamento { text-align: right; }
+h1 { margin: 0; font-size: 23pt; line-height: 1.2; color: #153b69; }
+.numero-orcamento { margin: 8px 0 16px; font-size: 14pt; font-weight: 700; }
+dl { margin: 0; }
+dd { margin: 0; }
+.datas-orcamento div { display: flex; justify-content: space-between; gap: 20px; margin-top: 5px; }
+.datas-orcamento dt { color: #475569; font-size: 9pt; }
+.datas-orcamento dd { font-size: 10pt; font-weight: 700; }
+.cliente-impressao { margin: 20px 0; }
+.cliente-impressao h2 { margin: 0 0 5px; font-size: 9pt; color: #475569; text-transform: uppercase; letter-spacing: .06em; }
+.cliente-impressao p { margin: 0; font-size: 13pt; font-weight: 700; overflow-wrap: anywhere; }
+.itens-impressao { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.col-descricao { width: 52%; }
+.col-quantidade { width: 10%; }
+.col-unitario { width: 18%; }
+.col-total { width: 20%; }
+.itens-impressao th, .itens-impressao td { padding: 10px 8px; text-align: left; vertical-align: top; }
+.itens-impressao th { color: #153b69; background: #eef4fb; border-bottom: 1px solid #94a3b8; font-size: 9pt; font-weight: 700; }
+.itens-impressao td { border-bottom: 1px solid #d8dee7; font-size: 10.5pt; overflow-wrap: anywhere; }
+.itens-impressao td:nth-child(n + 2), .itens-impressao th:nth-child(n + 2) { text-align: right; font-variant-numeric: tabular-nums; }
+.itens-impressao .referencia-itens th { padding: 0 0 8px; color: #475569; background: #fff; border: 0; }
+.referencia-itens span { float: right; font-weight: 400; }
+.resumo-impressao { width: 78mm; max-width: 100%; margin: 20px 0 0 auto; }
+.resumo-impressao dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 6px 0; }
+.resumo-impressao dd { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.resumo-impressao .total-final { border-top: 2px solid #153b69; margin-top: 8px; padding-top: 12px; color: #153b69; font-weight: 700; }
+.total-final dt { font-size: 10pt; }
+.total-final dd { font-size: 17pt; }
+.rodape-impressao { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-top: 1px solid #cbd5e1; padding-top: 12px; margin-top: 28px; font-size: 9pt; color: #475569; }
+.rodape-impressao p { margin: 0; overflow-wrap: anywhere; }
+.rodape-impressao span, .rodape-impressao strong { display: block; }
+.rodape-impressao strong { margin-top: 3px; color: #1e293b; }
+@media screen and (max-width: 600px) {
+  body { padding: 16px; }
+  .cabecalho-impressao { flex-wrap: wrap; }
+  .identificacao-orcamento { text-align: left; }
+  .rodape-impressao { flex-direction: column; align-items: flex-start; }
+  .itens-impressao th, .itens-impressao td { padding: 8px 4px; font-size: 9pt; }
+}
+@page orcamento {
+  size: A4 portrait;
+  /* Sem margem superior, o navegador não tem espaço para seu cabeçalho automático. */
+  margin: 0 14mm 18mm;
+  @bottom-right {
+    content: "Página " counter(page) " de " counter(pages);
+    font: 9pt Arial, Helvetica, sans-serif;
+    color: #475569;
+  }
+}
+@media print {
+  body { padding: 0; }
+  .documento-impressao {
+    page: orcamento;
+    max-width: none;
+    margin: 0;
+    /* Repete o espaço interno no topo de cada página, inclusive nas continuações. */
+    padding-top: 14mm;
+    box-decoration-break: clone;
+  }
+  .acoes-impressao { display: none; }
+  .cabecalho-impressao, .cliente-impressao, .resumo-impressao, .rodape-impressao,
+  .itens-impressao tr { break-inside: avoid; page-break-inside: avoid; }
+  .cabecalho-impressao, .cliente-impressao { break-after: avoid; }
+  .itens-impressao thead { display: table-header-group; }
+}
