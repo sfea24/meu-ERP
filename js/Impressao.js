@@ -45,11 +45,11 @@ function preencherDocumento(dados, valores) {
     referenciaRodape: empresa.nome + " · Orçamento nº " + numero,
     responsavelImpressao: dados.responsavel || "—",
     subtotalImpressao: moeda(valores.subtotal),
-    descontoImpressao: "− " + moeda(valores.desconto),
+    descontoImpressao: (valores.desconto > 0 ? "− " : "") + moeda(valores.desconto),
     totalImpressao: moeda(valores.total),
   };
   for (const [id, texto] of Object.entries(textos)) elementoImpressao(id).textContent = texto;
-  elementoImpressao("linhaDesconto").hidden = valores.desconto === 0;
+  elementoImpressao("linhaDesconto").hidden = false;
   const lista = elementoImpressao("itensImpressao");
   dados.itens.forEach((item, indice) => {
     const linha = document.createElement("tr");
