@@ -101,7 +101,7 @@ function data(valor) {
 
 function situacaoValidade(valor, agora = new Date()) {
   const validade = new Date(valor || "");
-  if (Number.isNaN(validade.getTime())) return "";
+  if (Number.isNaN(validade.getTime())) return "SEM VALIDADE";
   if (validade <= agora) return "VENCIDO";
   return validade.toDateString() === agora.toDateString() ? "VENCE HOJE" : "VÁLIDO";
 }
@@ -175,7 +175,7 @@ function mostrarTabela() {
 
       coluna.textContent = valor ?? "";
       coluna.dataset.label = configuracao.colunas[indice];
-      if (tabela === "orcamento" && configuracao.colunas[indice] === "Situação" && valor) {
+      if (tabela === "orcamento" && configuracao.colunas[indice] === "Situação") {
         const etiqueta = document.createElement("span");
         const classe = { "VÁLIDO": "ativo", "VENCIDO": "inativo", "VENCE HOJE": "atencao" }[valor] || "neutro";
         etiqueta.className = `status-produto status-${classe}`;
@@ -447,6 +447,7 @@ async function iniciar() {
   });
 
   await carregarRegistros();
+  if (tabela === "orcamento") setInterval(mostrarTabela, 30000);
 }
 
 iniciar();

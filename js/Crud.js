@@ -11,6 +11,52 @@ let buscaCategoria;
 let salvandoRegistro = false;
 let imprimindoOrcamento = false;
 
+const avisoAlteracoes = {
+  ativo: false,
+  base: "",
+  ignorarSaida: false,
+  capturar() {
+    return JSON.stringify([...formCadastro.elements]
+      .filter(elemento => elemento.matches("input, select, textarea"))
+      .map(elemento => [elemento.id, elemento.value,
+        ["checkbox", "radio"].includes(elemento.type) ? elemento.checked : null]));
+  },
+  alterado() { return this.ativo && this.capturar() !== this.base; },
+  confirmarSaida() {
+    if (salvandoRegistro) return false;
+    if (this.alterado() && !confirm("Há alterações não salvas. Deseja sair mesmo assim?")) return false;
+    this.ignorarSaida = true;
+    return true;
+  },
+  confirmarLimpeza() {
+    return !this.alterado() || confirm("Deseja limpar o formulário e descartar as alterações não salvas?");
+  },
+  salvo({ redirecionar = false } = {}) {
+    this.base = this.capturar();
+    this.ignorarSaida = redirecionar;
+  },
+  limpo() { this.salvo(); },
+  iniciar() {
+    this.base = this.capturar();
+    this.ativo = true;
+    window.addEventListener("beforeunload", evento => {
+      if (this.ignorarSaida || (!this.alterado() && !salvandoRegistro)) return;
+      evento.preventDefault();
+      evento.returnValue = "";
+    });
+    document.addEventListener("click", evento => {
+      const link = evento.target.closest("a[href]");
+      if (evento.defaultPrevented || !link || link.target === "_blank" || link.hasAttribute("download") || evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey) return;
+      if (!this.confirmarSaida()) evento.preventDefault();
+    });
+    window.addEventListener("pageshow", () => { this.ignorarSaida = false; });
+  },
+};
+
+function protecaoFormulario() {
+  return tabela === "orcamento" ? window.OrcamentoRascunho : avisoAlteracoes;
+}
+
 function avisar(texto, erro = false) {
   mensagem.textContent = texto;
   mensagem.className = erro ? "erro" : "sucesso";
@@ -105,10 +151,10 @@ function adicionarBarraNavegacao() {
 
   document.body.classList.add("com-barra-navegacao");
   document.getElementById("botaoSair").addEventListener("click", () => {
-    if (window.OrcamentoFormulario && !OrcamentoFormulario.confirmarSaida()) return;
+    if (!protecaoFormulario()?.confirmarSaida()) return;
     sessionStorage.removeItem("usuarioLogado");
     sessionStorage.removeItem("usuarioId");
-    sessionStorage.removeItem("tipoUsuario");
+  sessionStorage.removeItem("tipoUsuario");
     window.location.href = "index.html";
   });
 
@@ -412,6 +458,7 @@ function adicionarItemOrcamento(produtoId = "", quantidade = 1, valorSalvo = nul
     if (!confirm("Deseja remover este produto do orçamento?")) return;
     item.remove();
     config.recalcularTotal();
+    window.OrcamentoRascunho?.registrar();
   });
 
   produto.addEventListener("change", () => {
@@ -423,6 +470,7 @@ function adicionarItemOrcamento(produtoId = "", quantidade = 1, valorSalvo = nul
   item.append(rotular("Descrição", campoProduto), rotular("Quantidade", quantidadeInput), preco, remover);
   listaItens.appendChild(item);
   config.recalcularTotal();
+  window.OrcamentoRascunho?.registrar();
 }
 
 function lerFormulario() {
@@ -481,8 +529,8 @@ async function persistirRegistro({ redirecionar = true } = {}) {
   config.aposSalvar?.({ id, campos });
   if (tabela === "orcamento") {
     registroId.value = resposta.data;
-    window.OrcamentoFormulario?.salvo({ redirecionar });
   }
+  protecaoFormulario()?.salvo({ redirecionar });
   if (redirecionar) window.location.href = `Consulta.html?tipo=${tabela}`;
   return true;
 }
@@ -540,7 +588,7 @@ async function salvarEImprimirOrcamento() {
 
 function limparFormulario() {
   if (salvandoRegistro || imprimindoOrcamento) return;
-  if (window.OrcamentoFormulario && !OrcamentoFormulario.confirmarLimpeza()) return;
+  if (!protecaoFormulario()?.confirmarLimpeza()) return;
   formCadastro.reset();
   registroId.value = "";
   config.preencherCamposPadrao?.();
@@ -550,8 +598,8 @@ function limparFormulario() {
     buscaCliente?.atualizar();
     document.getElementById("itensOrcamento").innerHTML = "";
     config.recalcularTotal();
-    window.OrcamentoFormulario?.limpo();
   }
+  protecaoFormulario()?.limpo();
 }
 
 async function carregarRegistroParaEditar() {
@@ -642,7 +690,7 @@ async function iniciar() {
   }
 
   config.preencherCamposPadrao?.();
-  if (tabela === "orcamento") window.OrcamentoFormulario?.iniciar();
+  await protecaoFormulario()?.iniciar();
 
   document
     .getElementById("adicionarItem")

@@ -500,6 +500,7 @@ td {
 }
 .status-atencao { background: #fef3c7; color: #92400e; }
 .status-neutro { background: #e5e7eb; color: #374151; }
+.aviso-rascunho { margin: 12px 0; color: #475569; font-size: 14px; }
 @media (max-width: 768px) {
   body {
     align-items: center;

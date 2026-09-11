@@ -30,7 +30,7 @@ function formatarTelefone(valor) {
   if (!numeros) return "";
   if (numeros.length <= 2) return "(" + numeros;
   const numero = numeros.slice(2);
-  const tamanhoPrefixo = 5;
+  const tamanhoPrefixo = numeros.length === 11 ? 5 : 4;
   const parteFinal = numero.length > tamanhoPrefixo ? "-" + numero.slice(tamanhoPrefixo) : "";
   return "(" + numeros.slice(0, 2) + ") " + numero.slice(0, tamanhoPrefixo) + parteFinal;
 }
